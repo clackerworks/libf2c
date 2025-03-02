@@ -249,9 +249,10 @@ main(int argc, char **argv)
 				fprintf(f, "#define Sudden_Underflow\n");
 			t_nan = -a->kind;
 			if (sizeof(double) == 2*sizeof(unsigned int)) {
-				get_nanbits(nanbits, a->kind);
-				fprintf(f, "#define QNaN0 0x%x\n", nanbits[0]);
-				fprintf(f, "#define QNaN1 0x%x\n", nanbits[1]);
+//              FIXME: This kills 8c 
+//				get_nanbits(nanbits, a->kind);
+//				fprintf(f, "#define QNaN0 0x%x\n", nanbits[0]);
+//				fprintf(f, "#define QNaN1 0x%x\n", nanbits[1]);
 				}
 			w0 = 2 - a->kind;
 			goodbits = gooderrno = 0;
