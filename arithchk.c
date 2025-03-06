@@ -29,6 +29,8 @@ THIS SOFTWARE.
 #include <math.h>
 #include <errno.h>
 #include <sys/types.h>	/* another possible place for ssize_t */
+#include <float.h> 
+#include <assert.h> 
 
 #ifdef NO_FPINIT
 #define fpinit_ASL()
@@ -168,18 +170,32 @@ fzcheck(void)
 	return b == 0.;
 	}
 
- void
-get_nanbits(unsigned int *b, int k)
-{
-	union { double d; unsigned int z[2]; } u, u1, u2;
+// void
+//get_nanbits(unsigned int *b, int k)
+//{
+//	union { double d; unsigned int z[2]; } u, u1, u2;
+//
+//	k = 2 - k;
+//	u1.z[k] = u2.z[k] = 0x7ff00000;
+//	u1.z[1-k] = u2.z[1-k] = 0;
+//	u.d = u1.d - u2.d;	/* Infinity - Infinity */
+//	b[0] = u.z[0];
+//	b[1] = u.z[1];
+//	}
 
-	k = 2 - k;
-	u1.z[k] = u2.z[k] = 0x7ff00000;
-	u1.z[1-k] = u2.z[1-k] = 0;
-	u.d = u1.d - u2.d;	/* Infinity - Infinity */
-	b[0] = u.z[0];
-	b[1] = u.z[1];
-	}
+
+void
+get_nanbits(unsigned int *b, int)
+{
+	FPdbleword w;
+
+	assert(sizeof(double) == 8);
+
+	w.hi = 0x7ff80000;
+	w.lo = 0;
+	memcpy(b, &w, 8);
+}
+
 
  int
 main(int argc, char **argv)
@@ -249,10 +265,9 @@ main(int argc, char **argv)
 				fprintf(f, "#define Sudden_Underflow\n");
 			t_nan = -a->kind;
 			if (sizeof(double) == 2*sizeof(unsigned int)) {
-//              FIXME: This kills 8c 
-//				get_nanbits(nanbits, a->kind);
-//				fprintf(f, "#define QNaN0 0x%x\n", nanbits[0]);
-//				fprintf(f, "#define QNaN1 0x%x\n", nanbits[1]);
+				get_nanbits(nanbits, a->kind);
+				fprintf(f, "#define QNaN0 0x%x\n", nanbits[0]);
+				fprintf(f, "#define QNaN1 0x%x\n", nanbits[1]);
 				}
 			w0 = 2 - a->kind;
 			goodbits = gooderrno = 0;
